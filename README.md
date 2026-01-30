@@ -47,42 +47,11 @@ docker-compose down
 **访问系统**: http://localhost:8080  
 **默认账号**: `admin` / `admin123`
 
-### PostgreSQL 部署
-
-1. **修改 docker-compose.yml**，将 MySQL 服务替换为 PostgreSQL：
-
-```yaml
-services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: keyops-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-keyops}
-      TZ: Asia/Shanghai
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./sql/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - keyops-network
-
-volumes:
-  postgres_data:
-    driver: local
-```
-
 2. **修改环境变量**，在 `.env` 文件中设置：
 
 ```bash
+docker-compose -f docker-compose-pg.yaml up  -d
+
 DB_DRIVER=postgres
 DB_HOST=postgres
 DB_PORT=5432
@@ -91,11 +60,6 @@ DB_PASSWORD=postgres
 DB_NAME=keyops
 ```
 
-3. **启动服务**：
-
-```bash
-docker-compose up -d
-```
 
 ## 端口说明
 
@@ -122,12 +86,3 @@ POSTGRES_DB=keyops
 REDIS_ENABLED=true
 REDIS_PASSWORD=
 
-# 服务端口
-HTTP_PORT=8080
-SSH_PORT=2222
-GUACD_PORT=4822
-```
-
-## 许可证
-
-GNU General Public License v3.0 (GPLv3)
